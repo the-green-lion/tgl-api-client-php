@@ -23,4 +23,4 @@ $document = $client->getDocument("ID OF A DOCUMENT");
 ```
 
 ## How to use the data
-Please have a look at the explanation on the site of our [Wordpress plugin]()
+Please have a look at the explanation on the site of our [Wordpress plugin](https://github.com/the-green-lion/wp-tgl-content-insert)
