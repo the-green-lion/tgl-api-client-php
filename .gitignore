@@ -1,2 +1,5 @@
+*.ini
+.vscode
 src/firebaseLib.php
 src/firebaseInterface.php
+examples
