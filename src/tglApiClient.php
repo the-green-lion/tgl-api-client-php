@@ -18,6 +18,8 @@ class TglApiClient
     private $tokenFirebase = null;
     private $firebaseClient = null;
 
+    private $urlEndpointBookings = "https://localhost:44390/bookings/%d?auth=%s";
+
     public function signInWithApiKey($apiKey)
     {
         $result = $this->signInTgl($apiKey);
@@ -35,7 +37,18 @@ class TglApiClient
 
     private function signInTgl($apiKey)
     {
-        $payload = file_get_contents("https://api.thegreenlion.net/AuthService.svc/LogInWithApiKey?key=".$apiKey);
+        // use key 'http' even if you send the request to https://...
+        $options = array(
+            'http' => array(
+                'header'  => "Content-type: application/json\r\nContent-Length: 0\r\n",
+                'method'  => 'POST',
+                'content' => ""
+            )
+        );
+
+        $context  = stream_context_create($options);
+
+        $payload = file_get_contents("https://api.thegreenlion.net/user/".$apiKey."/authenticate", false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -81,6 +94,88 @@ class TglApiClient
     // Get a specific country by its ID
     public function getDocument($id) {
         return json_decode($this->firebaseClient->get('content/'.$id));
+    }
+
+    
+
+    // Bookings API
+    public function getBooking($id)
+    {
+        // use key 'http' even if you send the request to https://...
+        $options = array(
+            'http' => array(
+                'header'  => "Content-Length: 0\r\n",
+                'method'  => 'GET'
+            )
+        );
+
+        $context  = stream_context_create($options);
+
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, $id, $this->tokenFirebase), false, $context);
+        if($payload === FALSE) {
+          return FALSE;
+        }
+        
+        return json_decode($payload);
+    }
+
+    public function createBooking($booking)
+    {
+        $options = array(
+            'http' => array(
+                'header'  => "Content-type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($booking)
+            )
+        );
+
+        $context  = stream_context_create($options);
+        
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, "", $this->tokenFirebase), false, $context);
+        if($payload === FALSE) {
+          return FALSE;
+        }
+        
+        return json_decode($payload)->id;
+    }
+
+    public function updateBooking($id, $booking)
+    {
+        $options = array(
+            'http' => array(
+                'header'  => "Content-type: application/json\r\n",
+                'method'  => 'PUT',
+                'content' => json_encode($booking)
+            )
+        );
+
+        $context  = stream_context_create($options);
+        
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, $id, $this->tokenFirebase), false, $context);
+        if($payload === FALSE) {
+          return FALSE;
+        }
+        
+        return TRUE;
+    }
+
+    public function cancelBooking($id)
+    {
+        $options = array(
+            'http' => array(
+                'method'  => 'DELETE',
+                'content' => ""
+            )
+        );
+
+        $context  = stream_context_create($options);
+        
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, $id, $this->tokenFirebase), false, $context);
+        if($payload === FALSE) {
+          return FALSE;
+        }
+        
+        return TRUE;
     }
 }
 ?>

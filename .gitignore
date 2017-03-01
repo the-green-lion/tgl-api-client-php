@@ -2,4 +2,4 @@
 .vscode
 src/firebaseLib.php
 src/firebaseInterface.php
-examples
+examples/test.php
