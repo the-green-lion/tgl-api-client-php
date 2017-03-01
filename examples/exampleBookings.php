@@ -4,7 +4,7 @@ require_once __DIR__ . '\..\src\tglApiClient.php';
 
 
 // Instantiate API client and sign in
-$key ="e193c470-cc9a-48f7-ab89-4d2429066864";
+$key ="<<YOUR API KEY>>";
 $client = new TglApiClient();
 $client->signInWithApiKey($key);
 
@@ -23,13 +23,13 @@ $newBooking = array(
         ),
         //'flightNumber' => "DE123", // Optional,
         'participant' => array(
-            birthday => date("Y-m-d\TH:i:s\Z", mktime(0, 0, 0, 3, 11, 2002)),
-            countryCode => 'DE', //Nationality as ISO 3166-1 alpha-2 code
-            email => 'test@gmail.com', // Optional
-            firstName => 'Claus',
-            gender => 0, // 0=Male, 1=Female
-            lastName => 'Santa',
-            passportNumber => 'XK2F11LA5' // Optional
+            'birthday' => date("Y-m-d\TH:i:s\Z", mktime(0, 0, 0, 3, 11, 2002)),
+            'countryCode' => 'DE', //Nationality as ISO 3166-1 alpha-2 code
+            'email' => 'test@gmail.com', // Optional
+            'firstName' => 'Claus',
+            'gender' => 0, // 0=Male, 1=Female
+            'lastName' => 'Santa',
+            'passportNumber' => 'XK2F11LA5' // Optional
         ),
         'programs' => array(
             array( 'id' => '1mKY3DddPftfvIDPK959drDwyOnTIuLiHUf3gWqdhZ9A' ),
@@ -45,7 +45,7 @@ $newBooking = array(
 $bookingId = $client->createBooking($newBooking);
 
 // Retrieve that booking again from the API
-$booking = $client->getBooking($bookingId);
+$booking = $client->getBooking(48420);
 
 // Now the participant confirmed his arrival details. Update booking.
 $booking->dateArrival = date("Y-m-d\TH:i:s\Z", mktime(10, 5, 0, 3, 26, 2017));

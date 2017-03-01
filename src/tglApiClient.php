@@ -18,7 +18,7 @@ class TglApiClient
     private $tokenFirebase = null;
     private $firebaseClient = null;
 
-    private $urlEndpointBookings = "https://localhost:44390/bookings/%d?auth=%s";
+    private $urlEndpointBookings = "https://api.thegreenlion.net/bookings/%d?auth=%s";
 
     public function signInWithApiKey($apiKey)
     {
@@ -54,7 +54,7 @@ class TglApiClient
         }
         
         $result = json_decode($payload);
-        $this->token = $result->Token;
+        $this->token = $result->token;
 
         return TRUE;
     }
