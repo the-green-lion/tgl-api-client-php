@@ -3,6 +3,8 @@ TGL API Client
 
 PHP client for TGL's REST API.
 
+You may also be interested in our [JS](https://github.com/the-green-lion/tgl-api-client-js) and [.Net](https://github.com/the-green-lion/tgl-api-client-csharp) client libraries or our [Wordpress Plugin](https://github.com/the-green-lion/wp-tgl-content-insert)
+
 ##Dependencies
 This library depends on the following projects:
 - eelkevdbos/firebase-php [github](https://github.com/eelkevdbos/firebase-php/releases/tag/0.1.3)
