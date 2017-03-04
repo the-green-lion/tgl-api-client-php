@@ -45,7 +45,7 @@ $newBooking = array(
 $bookingId = $client->createBooking($newBooking);
 
 // Retrieve that booking again from the API
-$booking = $client->getBooking(48420);
+$booking = $client->getBooking($bookingId);
 
 // Now the participant confirmed his arrival details. Update booking.
 $booking->dateArrival = date("Y-m-d\TH:i:s\Z", mktime(10, 5, 0, 3, 26, 2017));
