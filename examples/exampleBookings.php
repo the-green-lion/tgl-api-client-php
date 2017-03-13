@@ -4,7 +4,7 @@ require_once __DIR__ . '\..\src\tglApiClient.php';
 
 
 // Instantiate API client and sign in
-$key ="<<YOUR API KEY>>";
+$key ="4191074d-3a74-47b3-a81c-c0737f1625cf"; //<<YOUR API KEY>>";
 $client = new TglApiClient();
 $client->signInWithApiKey($key);
 
@@ -56,6 +56,15 @@ $client->updateBooking($bookingId, $booking);
 // We will later still be able to get this booking via the API but 'isCanceled' will be 'true'
 $client->cancelBooking($bookingId);
 
+// Retrieve all bookings with a certain reference
+$filter = array(
+    //'isCanceled' => true,
+    //'dateStartBefore' => '2017-05-11',
+    //'dateStartAfter' => '2017-02-11'
+    'reference' => 'K0038',
+    //'email' => 'test@test.com' 
+);
+$bookings = $client->listBookings($filter, 1);
 
 
 echo $booking;

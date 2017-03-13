@@ -1,6 +1,6 @@
 <?php
 
-// Use firebase library from here: https://github.com/eelkevdbos/firebase-php/blob/master/src/FirebaseMethods.php
+// Use firebase library from here: https://github.com/ktamas77/firebase-php
 require_once __DIR__ . '/firebaseLib.php';
 
 /**
@@ -18,7 +18,7 @@ class TglApiClient
     private $tokenFirebase = null;
     private $firebaseClient = null;
 
-    private $urlEndpointBookings = "https://api.thegreenlion.net/bookings/%d?auth=%s";
+    private $urlEndpointBookings = "https://api.thegreenlion.net/bookings%s?auth=%s%s";
 
     public function signInWithApiKey($apiKey)
     {
@@ -99,6 +99,33 @@ class TglApiClient
     
 
     // Bookings API
+    public function listBookings($filter, $page)
+    {
+        $parameters = "&page=" . $page;
+        if (isset($filter['isCanceled'])) $parameters .= "&isCanceled=" . $filter['isCanceled'];
+        if (isset($filter['dateStartBefore'])) $parameters .= "&dateStartBefore=" . $filter['dateStartBefore'];
+        if (isset($filter['dateStartafter'])) $parameters .= "&dateStartafter=" . $filter['dateStartafter'];
+        if (isset($filter['reference'])) $parameters .= "&reference=" . $filter['reference'];
+        if (isset($filter['email'])) $parameters .= "&email=" . $filter['email'];
+
+        // use key 'http' even if you send the request to https://...
+        $options = array(
+            'http' => array(
+                'header'  => "Content-Length: 0\r\n",
+                'method'  => 'GET'
+            )
+        );
+
+        $context  = stream_context_create($options);
+
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, '', $this->tokenFirebase, $parameters), false, $context);
+        if($payload === FALSE) {
+          return FALSE;
+        }
+        
+        return json_decode($payload);
+    }
+
     public function getBooking($id)
     {
         // use key 'http' even if you send the request to https://...
@@ -111,7 +138,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
 
-        $payload = file_get_contents(sprintf($this->urlEndpointBookings, $id, $this->tokenFirebase), false, $context);
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, '/'.$id, $this->tokenFirebase, ''), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -131,7 +158,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
         
-        $payload = file_get_contents(sprintf($this->urlEndpointBookings, "", $this->tokenFirebase), false, $context);
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, '', $this->tokenFirebase, ''), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -151,7 +178,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
         
-        $payload = file_get_contents(sprintf($this->urlEndpointBookings, $id, $this->tokenFirebase), false, $context);
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, '/'.$id, $this->tokenFirebase, ''), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -170,7 +197,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
         
-        $payload = file_get_contents(sprintf($this->urlEndpointBookings, $id, $this->tokenFirebase), false, $context);
+        $payload = file_get_contents(sprintf($this->urlEndpointBookings, '/'.$id, $this->tokenFirebase, ''), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
