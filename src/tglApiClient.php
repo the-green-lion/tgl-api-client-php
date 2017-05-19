@@ -17,6 +17,7 @@ class TglApiClient
     public $token = null;
     private $tokenFirebase = null;
     private $firebaseClient = null;
+    public $userId = null;
 
     private $urlEndpointBookings = "https://api.thegreenlion.net/bookings%s?auth=%s%s";
 
@@ -32,6 +33,11 @@ class TglApiClient
           return FALSE;
         }
 
+        $result = $this->loadUserFirebase();
+        if ($result === FALSE) { 
+          return FALSE;
+        }        
+
         return true;
     }
 
@@ -43,7 +49,11 @@ class TglApiClient
                 'header'  => "Content-type: application/json\r\nContent-Length: 0\r\n",
                 'method'  => 'POST',
                 'content' => ""
-            )
+            ),
+            "ssl"=>array(
+                "verify_peer"=>false,
+                "verify_peer_name"=>false,
+            ),
         );
 
         $context  = stream_context_create($options);
@@ -86,12 +96,46 @@ class TglApiClient
         return TRUE;
     }
 
-    private function loadUserFirebase($token)
+    private function loadUserFirebase()
     {
+        $url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key=".self::$FIREBASE_KEY;
+        $data = array('idToken' => $this->tokenFirebase);
+        
+        // use key 'http' even if you send the request to https://...
+        $options = array(
+            'http' => array(
+                'header'  => "Content-type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($data)
+            )
+        );
+
+        $context  = stream_context_create($options);
+        $payload = file_get_contents($url, false, $context);
+        if ($payload === FALSE) { 
+          return FALSE;
+        }
+
+        $result = json_decode($payload);
+        $this->userId = $result->users[0]->localId;
+
+        return TRUE;
     }
 
     
-    // Get a specific country by its ID
+    // Get the IDs of all documents of a type
+    public function listDocuments($documentType) {
+        
+        $userData = json_decode($this->firebaseClient->get('users/'.$this->userId));
+        $ids = $this->firebaseClient->get('permissions/'.$userData->agentId.'/'.$documentType);
+        if($ids === FALSE) {
+          return FALSE;
+        }
+        
+       return array_keys((array)json_decode($ids));
+    }
+    
+    // Get a specific document by its ID
     public function getDocument($id) {
         return json_decode($this->firebaseClient->get('content/'.$id));
     }

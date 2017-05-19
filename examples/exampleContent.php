@@ -4,9 +4,12 @@ require_once __DIR__ . '\..\src\tglApiClient.php';
 
 
 // Instantiate API client and sign in
-$key ="<<YOUR API KEY>>";
+$key = "<<YOUR API KEY>>";
 $client = new TglApiClient();
 $client->signInWithApiKey($key);
+
+// Load the IDs of all program documents
+$ids = $client->listDocuments("programs");
 
 // Get the Thailand Umphang location document
 $document = $client->getDocument("1qHoygXnd8S3JSzFqteOtSXXM-LMTdDGS6658nKeRwqQ");
