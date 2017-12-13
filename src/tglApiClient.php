@@ -41,6 +41,19 @@ class TglApiClient
         return true;
     }
 
+    public function signInWithToken($existingToken)
+    {        
+        $this->tokenFirebase = $existingToken;
+        $this->firebaseClient = new \Firebase\FirebaseLib(self::$FIREBASE_URL, $this->tokenFirebase);
+
+        $result = $this->loadUserFirebase();
+        if ($result === FALSE) { 
+          return FALSE;
+        }        
+
+        return true;
+    }
+
     private function signInTgl($apiKey)
     {
         /*//  Initiate curl
@@ -159,11 +172,17 @@ class TglApiClient
         return TRUE;
     }
 
+
+    // Get the currently logged in user with its full profile
+    public function getCurrentUser() {
+        return json_decode($this->firebaseClient->get('users/'.$this->userId));
+    }
+
     
     // Get the IDs of all documents of a type
     public function listDocuments($documentType) {
         
-        $userData = json_decode($this->firebaseClient->get('users/'.$this->userId));
+        $userData = $this->getCurrentUser();
         $ids = $this->firebaseClient->get('permissions/'.$userData->agentId.'/'.$documentType);
         if($ids === FALSE) {
           return FALSE;
