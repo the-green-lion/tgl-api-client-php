@@ -4,9 +4,13 @@ require_once __DIR__ . '\..\src\tglApiClient.php';
 
 
 // Instantiate API client and sign in
-$key = "<<YOUR API KEY>>";
-$client = new TglApiClient();
-$client->signInWithApiKey($key);
+//$key = "<<YOUR API KEY>>";
+$key = "1-g00esJvAKvUz1Amk-FvKiEroGvh5Zpc3gWSOMv197A";
+$secret = "0PhZmeBtrnPb";
+$client = new TglApiClient("https://api-dev.thegreenlion.net/");
+$client->signIn($key, $secret);
+
+$impersonateUserId = '1K5iLYMq9Lvy1mvLpq4kGHoCgqTQeEoiYaUvDwsIwcHg';
 
 
 //date_default_timezone_set('UTC');
@@ -41,20 +45,24 @@ $newBooking = array(
     
 );
 
+// Retrieve all bookins of that user
+$allBookings = $client->listBookingsOfUser($impersonateUserId, null, 1);
+
 // Make a new booking. We'll get back the booking ID'
-$bookingId = $client->createBooking($newBooking);
+$bookingId = $client->createBookingOfUser($impersonateUserId, $newBooking);
 
 // Retrieve that booking again from the API
-$booking = $client->getBooking($bookingId);
+$booking = $client->getBookingOfUser($impersonateUserId, $bookingId);
+
 
 // Now the participant confirmed his arrival details. Update booking.
 $booking->dateArrival = date("Y-m-d\TH:i:s\Z", mktime(10, 5, 0, 3, 26, 2017));
 $booking->flightNumber = "DE123";
-$client->updateBooking($bookingId, $booking);
+$client->updateBookingOfUser($impersonateUserId, $bookingId, $booking);
 
 // Participant canceled his trip.
 // We will later still be able to get this booking via the API but 'isCanceled' will be 'true'
-$client->cancelBooking($bookingId);
+$client->cancelBookingOfUser($impersonateUserId, $bookingId);
 
 // Retrieve all bookings with a certain reference
 $filter = array(
@@ -64,7 +72,7 @@ $filter = array(
     'reference' => 'K0038',
     //'email' => 'test@test.com' 
 );
-$bookings = $client->listBookings($filter, 1);
+$bookings = $client->listBookingsOfUser($impersonateUserId, $filter, 1);
 
 
 echo $booking;
