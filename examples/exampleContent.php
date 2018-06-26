@@ -4,9 +4,8 @@ require_once __DIR__ . '\..\src\tglApiClient.php';
 
 
 // Instantiate API client and sign in
-//$key = "<<YOUR API KEY>>";
-$key = "1EDqO3_cu-ixZHI_c1_DGwWu2aj49G6Ow6n1Ua2IwPDs";
-$secret = "wKvDdsHw5233RKKG";
+$key = "<<YOUR API KEY>>";
+$secret = "<<YOUR API SECRET>>";
 $client = new TglApiClient();
 $client->signIn($key, $secret);
 
