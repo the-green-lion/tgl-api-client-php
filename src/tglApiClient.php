@@ -22,7 +22,7 @@ class TglApiClient
     private $urlEndpointBase = "https://api.thegreenlion.net/";
     private $urlEndpointBookings = "booking/%s/%s/bookings%s?auth=%s%s";
 
-    function __construct($urlEndpointBase) {
+    function __construct($urlEndpointBase = null) {
         if (!empty($urlEndpointBase)) {
             $this->urlEndpointBase = $urlEndpointBase;
         }
