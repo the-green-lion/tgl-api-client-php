@@ -17,7 +17,7 @@ $newBooking = array(
         'reference' => "K0038", // Optional. Your internal customer number.
         //'dateArrival' => date("Y-m-d\TH:i:s\Z", mktime(0, 0, 0, 3, 26, 2017)), // Optional
         'comment' => "API Test", // Optional
-        'dateStart' => date("Y-m-d\TH:i:s\Z", mktime(0, 0, 0, 3, 27, 2017)),
+        'dateStart' => date("Y-m-d\TH:i:s\Z", mktime(0, 0, 0, 11, 15, 2021)),
         'fees' => array( // Optional
             array(
                 'quantity' => 5,
@@ -44,24 +44,27 @@ $newBooking = array(
     
 );
 
-// Retrieve all bookins of that user
-$allBookings = $client->listBookingsOfUser($impersonateUserId, null, 1);
+// Retrieve all bookings that user or API key has access to
+// Depending on the permission settings, the could be bookings made by the user or bookings made by any user in the organization 
+$allBookings = $client->listBookings(null, 1);
 
-// Make a new booking. We'll get back the booking ID'
-$bookingId = $client->createBookingOfUser($impersonateUserId, $newBooking);
+// Make a new booking. We'll get back the booking ID
+// We need to make bookings in the name of a specific user by passing its ID
+// This user will show up in the booking system as the one who created this booking
+$bookingId = $client->createBooking($newBooking, $impersonateUserId);
 
 // Retrieve that booking again from the API
-$booking = $client->getBookingOfUser($impersonateUserId, $bookingId);
+$booking = $client->getBooking($bookingId);
 
 
 // Now the participant confirmed his arrival details. Update booking.
-$booking->dateArrival = date("Y-m-d\TH:i:s\Z", mktime(10, 5, 0, 3, 26, 2017));
+$booking->dateArrival = date("Y-m-d\TH:i:s\Z", mktime(10, 5, 0, 11, 14, 2019));
 $booking->flightNumber = "DE123";
-$client->updateBookingOfUser($impersonateUserId, $bookingId, $booking);
+$client->updateBooking($bookingId, $booking);
 
 // Participant canceled his trip.
 // We will later still be able to get this booking via the API but 'isCanceled' will be 'true'
-$client->cancelBookingOfUser($impersonateUserId, $bookingId);
+$client->cancelBooking($bookingId);
 
 // Retrieve all bookings with a certain reference
 $filter = array(
@@ -71,7 +74,7 @@ $filter = array(
     'reference' => 'K0038',
     //'email' => 'test@test.com' 
 );
-$bookings = $client->listBookingsOfUser($impersonateUserId, $filter, 1);
+$bookings = $client->listBookings($filter, 1);
 
 
 echo $booking;

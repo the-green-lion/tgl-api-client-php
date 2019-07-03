@@ -20,7 +20,7 @@ class TglApiClient
     public $userId = null;
 
     private $urlEndpointBase = "https://api.thegreenlion.net/";
-    private $urlEndpointBookings = "booking/%s/%s/bookings%s?auth=%s%s";
+    private $urlEndpointBookings = "booking/bookings%s?auth=%s%s";
 
     function __construct($urlEndpointBase = null) {
         if (!empty($urlEndpointBase)) {
@@ -207,24 +207,20 @@ class TglApiClient
 
     // Bookings API
 
-    public function listBookingsOfUser($userId, $filter, $page)
-    {
-        return $this->listBookings('user', $userId, $filter, $page);
-    }
-
-    public function listBookingsOfOrganization($organizationId, $filter, $page)
-    {
-        return $this->listBookings('organization', $organizationId, $filter, $page);
-    }
-
-    public function listBookings($entity, $entityId, $filter, $page)
+    public function listBookings($filter, $page)
     {
         $parameters = "&page=" . $page;
         if (isset($filter['isCanceled'])) $parameters .= "&isCanceled=" . $filter['isCanceled'];
         if (isset($filter['dateStartBefore'])) $parameters .= "&dateStartBefore=" . $filter['dateStartBefore'];
-        if (isset($filter['dateStartafter'])) $parameters .= "&dateStartafter=" . $filter['dateStartafter'];
+        if (isset($filter['dateStartAfter'])) $parameters .= "&dateStartAfter=" . $filter['dateStartAfter'];
+        if (isset($filter['dateEndBefore'])) $parameters .= "&dateEndBefore=" . $filter['dateEndBefore'];
+        if (isset($filter['dateEndAfter'])) $parameters .= "&dateEndAfter=" . $filter['dateEndAfter'];
         if (isset($filter['reference'])) $parameters .= "&reference=" . $filter['reference'];
+        if (isset($filter['dateUpdatedAfter'])) $parameters .= "&dateUpdatedAfter=" . $filter['dateUpdatedAfter'];
+        if (isset($filter['nameContains'])) $parameters .= "&nameContains=" . $filter['nameContains'];
         if (isset($filter['email'])) $parameters .= "&email=" . $filter['email'];
+        if (isset($filter['organizationId'])) $parameters .= "&organizationId=" . $filter['organizationId'];
+        if (isset($filter['userId'])) $parameters .= "&userId=" . $filter['userId'];
 
         // use key 'http' even if you send the request to https://...
         $options = array(
@@ -236,7 +232,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
 
-        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, $entity, $entityId, '', $this->tokenFirebase, $parameters), false, $context);
+        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, '', $this->tokenFirebase, $parameters), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -244,17 +240,7 @@ class TglApiClient
         return json_decode($payload);
     }
 
-    public function getBookingOfUser($userId, $bookingId)
-    {
-        return $this->getBooking('user', $userId, $bookingId);
-    }
-
-    public function getBookingOfOrganization($organizationId, $bookingId)
-    {
-        return $this->getBooking('organization', $organizationId, $bookingId);
-    }
-
-    private function getBooking($entity, $entityId, $bookingId)
+    public function getBooking($bookingId)
     {
         // use key 'http' even if you send the request to https://...
         $options = array(
@@ -266,7 +252,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
 
-        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, $entity, $entityId, '/'.$bookingId, $this->tokenFirebase, ''), false, $context);
+        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, '/'.$bookingId, $this->tokenFirebase, ''), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -274,12 +260,7 @@ class TglApiClient
         return json_decode($payload);
     }
 
-    public function createBookingOfUser($userId, $booking)
-    {
-        return $this->createBooking('user', $userId, $booking);
-    }
-
-    private function createBooking($entity, $entityId, $booking)
+    public function createBooking($booking, $impersonateUserId = "me")
     {
         $options = array(
             'http' => array(
@@ -291,7 +272,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
         
-        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, $entity, $entityId, '', $this->tokenFirebase, ''), false, $context);
+        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, '', $this->tokenFirebase, '&impersonateUserId=' + $impersonateUserId), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -299,17 +280,7 @@ class TglApiClient
         return json_decode($payload)->id;
     }
 
-    public function updateBookingOfUser($userId, $bookingId, $booking)
-    {
-        return $this->updateBooking('user', $userId, $bookingId, $booking);
-    }
-
-    public function updateBookingOfOrganization($organizationId, $bookingId, $booking)
-    {
-        return $this->updateBooking('organization', $organizationId, $bookingId, $booking);
-    }
-
-    private function updateBooking($entity, $entityId, $bookingId, $booking)
+    public function updateBooking($bookingId, $booking)
     {
         $options = array(
             'http' => array(
@@ -321,7 +292,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
         
-        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, $entity, $entityId, '/'.$bookingId, $this->tokenFirebase, ''), false, $context);
+        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, '/'.$bookingId, $this->tokenFirebase, ''), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
@@ -329,17 +300,8 @@ class TglApiClient
         return TRUE;
     }
 
-    public function cancelBookingOfUser($userId, $bookingId)
-    {
-        return $this->cancelBooking('user', $userId, $bookingId);
-    }
-
-    public function cancelBookingOfOrganization($organizationId, $bookingId)
-    {
-        return $this->cancelBooking('organization', $organizationId, $bookingId);
-    }
-
-    private function cancelBooking($entity, $entityId, $bookingId)
+    
+    public function cancelBooking($bookingId)
     {
         $options = array(
             'http' => array(
@@ -350,7 +312,7 @@ class TglApiClient
 
         $context  = stream_context_create($options);
         
-        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, $entity, $entityId, '/'.$bookingId, $this->tokenFirebase, ''), false, $context);
+        $payload = file_get_contents($this->urlEndpointBase . sprintf($this->urlEndpointBookings, '/'.$bookingId, $this->tokenFirebase, ''), false, $context);
         if($payload === FALSE) {
           return FALSE;
         }
